@@ -1,0 +1,487 @@
+// Bikesharing signup flow screens — "Velo" (original design)
+
+const BIKE_BLUE = 'var(--brand-blue)';
+const BIKE_ORANGE = 'var(--brand-orange)';
+const BIKE_INK = 'var(--ink)';
+const BIKE_MUTED = 'var(--muted)';
+const BIKE_BG = 'var(--bg)';
+const BIKE_CARD = 'var(--card)';
+
+// ── Reusable bits ─────────────────────────────────────────────
+
+function BrandMark({ size = 44 }) {
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: size * 0.28,
+      background: BIKE_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center',
+      boxShadow: `0 6px 16px ${BIKE_BLUE}40`,
+      position: 'relative',
+    }}>
+      {/* stylized V / bike chainring */}
+      <svg width={size * 0.56} height={size * 0.56} viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="9" stroke="#fff" strokeWidth="2" />
+        <circle cx="12" cy="12" r="2" fill={BIKE_ORANGE} />
+        <path d="M12 3v4M12 17v4M3 12h4M17 12h4" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
+}
+
+function PillButton({ children, color = BIKE_BLUE, textColor = '#fff', onClick, style = {} }) {
+  return (
+    <button onClick={onClick} style={{
+      width: '100%', height: 56, borderRadius: 16, border: 'none',
+      background: color, color: textColor,
+      fontFamily: 'inherit', fontSize: 17, fontWeight: 600,
+      letterSpacing: -0.2, cursor: 'pointer',
+      boxShadow: color === BIKE_BLUE ? `0 8px 20px ${BIKE_BLUE}38` :
+                 color === BIKE_ORANGE ? `0 8px 20px ${BIKE_ORANGE}45` : 'none',
+      ...style,
+    }}>{children}</button>
+  );
+}
+
+function ScreenFrame({ children, showStep, step, totalSteps = 5, onBack, dark = false, padTop = 62 }) {
+  return (
+    <div style={{
+      position: 'absolute', inset: 0,
+      display: 'flex', flexDirection: 'column',
+      paddingTop: padTop, paddingBottom: 34,
+      color: dark ? '#fff' : BIKE_INK,
+    }}>
+      {/* Top bar: back + progress */}
+      {showStep && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 20px 24px' }}>
+          <button onClick={onBack} style={{
+            width: 40, height: 40, borderRadius: 12, border: 'none',
+            background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.05)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', padding: 0,
+          }}>
+            <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
+              <path d="M8 2L2 8l6 6" stroke={dark ? '#fff' : BIKE_INK} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+          <div style={{ flex: 1, display: 'flex', gap: 5 }}>
+            {Array.from({ length: totalSteps }).map((_, i) => (
+              <div key={i} style={{
+                flex: 1, height: 4, borderRadius: 2,
+                background: i < step ? BIKE_BLUE : (dark ? 'rgba(255,255,255,0.15)' : 'rgba(15,23,42,0.08)'),
+                transition: 'background 0.3s',
+              }} />
+            ))}
+          </div>
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}
+
+// ── Screen 1: Welcome ─────────────────────────────────────────
+function Screen_Welcome({ onNext }) {
+  return (
+    <div style={{
+      position: 'absolute', inset: 0, background: BIKE_BLUE, color: '#fff',
+      display: 'flex', flexDirection: 'column', overflow: 'hidden',
+    }}>
+      {/* Decorative rings */}
+      <svg style={{ position: 'absolute', top: -120, right: -140, opacity: 0.18 }} width="420" height="420" viewBox="0 0 420 420" fill="none">
+        <circle cx="210" cy="210" r="200" stroke="#fff" strokeWidth="1.5"/>
+        <circle cx="210" cy="210" r="150" stroke="#fff" strokeWidth="1.5"/>
+        <circle cx="210" cy="210" r="100" stroke="#fff" strokeWidth="1.5"/>
+      </svg>
+      <svg style={{ position: 'absolute', bottom: -80, left: -100, opacity: 0.12 }} width="340" height="340" viewBox="0 0 340 340" fill="none">
+        <circle cx="170" cy="170" r="160" stroke={BIKE_ORANGE} strokeWidth="2"/>
+        <circle cx="170" cy="170" r="110" stroke={BIKE_ORANGE} strokeWidth="2"/>
+      </svg>
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0 28px 36px', position: 'relative' }}>
+        {/* Placeholder bike graphic */}
+        <div style={{
+          position: 'absolute', top: 110, left: '50%', transform: 'translateX(-50%)',
+          width: 240, height: 240, borderRadius: 40,
+          background: 'rgba(255,255,255,0.08)',
+          border: '1px dashed rgba(255,255,255,0.35)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexDirection: 'column', gap: 8,
+          fontFamily: 'ui-monospace, SFMono-Regular, monospace',
+          fontSize: 11, color: 'rgba(255,255,255,0.6)', letterSpacing: 0.5,
+        }}>
+          <svg width="84" height="84" viewBox="0 0 84 84" fill="none" style={{ opacity: 0.9 }}>
+            <circle cx="22" cy="58" r="16" stroke="#fff" strokeWidth="2.5"/>
+            <circle cx="62" cy="58" r="16" stroke="#fff" strokeWidth="2.5"/>
+            <path d="M22 58 L38 32 L58 32 L62 58 L38 32" stroke={BIKE_ORANGE} strokeWidth="2.5" strokeLinejoin="round" fill="none"/>
+            <circle cx="42" cy="44" r="4" fill={BIKE_ORANGE}/>
+            <path d="M56 22 L62 22 L58 32" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <div>HERO ILLUSTRATION</div>
+        </div>
+
+        <div style={{ marginTop: 'auto' }}>
+          <BrandMark size={52} />
+          <h1 style={{
+            fontSize: 44, lineHeight: 1.02, fontWeight: 700,
+            margin: '24px 0 12px', letterSpacing: -1.4,
+          }}>
+            Ride the<br/>
+            <span style={{ color: BIKE_ORANGE }}>city</span>, freely.
+          </h1>
+          <p style={{ fontSize: 17, lineHeight: 1.4, color: 'rgba(255,255,255,0.78)', margin: '0 0 32px', letterSpacing: -0.2 }}>
+            Unlock bikes in 2,400+ cities. Pay by the minute. Park anywhere.
+          </p>
+          <PillButton color={BIKE_ORANGE} textColor="#1a1208" onClick={onNext}>Create account</PillButton>
+          <div style={{ textAlign: 'center', marginTop: 18, fontSize: 15, color: 'rgba(255,255,255,0.7)' }}>
+            Already riding? <span style={{ color: '#fff', fontWeight: 600 }}>Sign in</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Screen 2: Phone number ────────────────────────────────────
+function Screen_Phone({ onNext, onBack, phone, setPhone }) {
+  return (
+    <ScreenFrame showStep step={1} onBack={onBack}>
+      <div style={{ padding: '0 24px', flex: 1 }}>
+        <h2 style={{ fontSize: 30, fontWeight: 700, margin: '8px 0 10px', letterSpacing: -0.8, lineHeight: 1.1 }}>
+          What's your number?
+        </h2>
+        <p style={{ fontSize: 16, color: BIKE_MUTED, margin: '0 0 32px', letterSpacing: -0.2, lineHeight: 1.4 }}>
+          We'll text you a code to verify. Standard rates may apply.
+        </p>
+
+        {/* Phone input */}
+        <div style={{
+          display: 'flex', gap: 10, marginBottom: 20,
+        }}>
+          <div style={{
+            height: 64, padding: '0 18px', borderRadius: 16,
+            background: BIKE_CARD, display: 'flex', alignItems: 'center', gap: 8,
+            border: `1px solid rgba(15,23,42,0.06)`,
+            fontSize: 17, fontWeight: 500,
+          }}>
+            🇺🇸 <span style={{ color: BIKE_INK }}>+1</span>
+            <svg width="10" height="6" viewBox="0 0 10 6" style={{ marginLeft: 2, opacity: 0.4 }}>
+              <path d="M1 1l4 4 4-4" stroke={BIKE_INK} strokeWidth="1.8" fill="none" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <div style={{
+            flex: 1, height: 64, padding: '0 18px', borderRadius: 16,
+            background: BIKE_CARD,
+            border: `2px solid ${BIKE_BLUE}`,
+            display: 'flex', alignItems: 'center',
+            fontSize: 20, fontWeight: 500, letterSpacing: 0.5,
+            color: BIKE_INK,
+          }}>
+            {phone || <span style={{ color: BIKE_MUTED, fontWeight: 400 }}>(555) 123-4567</span>}
+            <div style={{
+              width: 2, height: 24, background: BIKE_BLUE, marginLeft: 2,
+              animation: 'blink 1s infinite',
+            }} />
+          </div>
+        </div>
+
+        <div style={{
+          display: 'flex', alignItems: 'flex-start', gap: 10,
+          padding: '14px 16px', borderRadius: 12,
+          background: `${BIKE_ORANGE}15`,
+          border: `1px solid ${BIKE_ORANGE}30`,
+        }}>
+          <div style={{ width: 20, height: 20, borderRadius: 10, background: BIKE_ORANGE, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 700, marginTop: 1 }}>i</div>
+          <p style={{ margin: 0, fontSize: 13, lineHeight: 1.45, color: BIKE_INK, letterSpacing: -0.1 }}>
+            By continuing, you agree to our <b>Terms</b> and <b>Privacy Policy</b>. We never share your number.
+          </p>
+        </div>
+      </div>
+
+      <div style={{ padding: '0 24px 12px' }}>
+        <PillButton onClick={onNext}>Send code →</PillButton>
+      </div>
+    </ScreenFrame>
+  );
+}
+
+// ── Screen 3: OTP verification ────────────────────────────────
+function Screen_Verify({ onNext, onBack }) {
+  const digits = ['4', '8', '2', '1', '', ''];
+  return (
+    <ScreenFrame showStep step={2} onBack={onBack}>
+      <div style={{ padding: '0 24px', flex: 1 }}>
+        <h2 style={{ fontSize: 30, fontWeight: 700, margin: '8px 0 10px', letterSpacing: -0.8, lineHeight: 1.1 }}>
+          Enter the code
+        </h2>
+        <p style={{ fontSize: 16, color: BIKE_MUTED, margin: '0 0 32px', letterSpacing: -0.2, lineHeight: 1.4 }}>
+          Sent to <b style={{ color: BIKE_INK }}>(555) 123-4567</b>. <span style={{ color: BIKE_BLUE, fontWeight: 600 }}>Edit</span>
+        </p>
+
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'space-between', marginBottom: 28 }}>
+          {digits.map((d, i) => (
+            <div key={i} style={{
+              width: 50, height: 64, borderRadius: 14,
+              background: BIKE_CARD,
+              border: `2px solid ${i === 4 ? BIKE_BLUE : (d ? 'rgba(15,23,42,0.08)' : 'rgba(15,23,42,0.06)')}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 28, fontWeight: 600, color: BIKE_INK,
+              boxShadow: i === 4 ? `0 0 0 4px ${BIKE_BLUE}15` : 'none',
+            }}>
+              {d || (i === 4 && <div style={{ width: 2, height: 28, background: BIKE_BLUE, animation: 'blink 1s infinite' }} />)}
+            </div>
+          ))}
+        </div>
+
+        <div style={{ textAlign: 'center', fontSize: 15, color: BIKE_MUTED }}>
+          Didn't receive it? <span style={{ color: BIKE_BLUE, fontWeight: 600 }}>Resend in 24s</span>
+        </div>
+      </div>
+
+      <div style={{ padding: '0 24px 12px' }}>
+        <PillButton onClick={onNext}>Verify →</PillButton>
+      </div>
+    </ScreenFrame>
+  );
+}
+
+// ── Screen 4: Profile ─────────────────────────────────────────
+function Screen_Profile({ onNext, onBack }) {
+  return (
+    <ScreenFrame showStep step={3} onBack={onBack}>
+      <div style={{ padding: '0 24px', flex: 1, overflow: 'auto' }}>
+        <h2 style={{ fontSize: 30, fontWeight: 700, margin: '8px 0 10px', letterSpacing: -0.8, lineHeight: 1.1 }}>
+          A bit about you
+        </h2>
+        <p style={{ fontSize: 16, color: BIKE_MUTED, margin: '0 0 28px', letterSpacing: -0.2, lineHeight: 1.4 }}>
+          So we can personalize your ride experience.
+        </p>
+
+        {/* Avatar upload */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 28 }}>
+          <div style={{
+            width: 96, height: 96, borderRadius: 48,
+            background: `linear-gradient(135deg, ${BIKE_BLUE}, ${BIKE_ORANGE})`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff', fontSize: 36, fontWeight: 600,
+            position: 'relative',
+          }}>
+            AM
+            <div style={{
+              position: 'absolute', bottom: 0, right: 0,
+              width: 32, height: 32, borderRadius: 16,
+              background: BIKE_ORANGE, border: '3px solid #fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M10.5 2.5l1 1L5 10l-2.5.5L3 8l7.5-5.5z" stroke="#fff" strokeWidth="1.6" fill="none" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          </div>
+          <div style={{ marginTop: 10, fontSize: 14, color: BIKE_BLUE, fontWeight: 600 }}>Add photo</div>
+        </div>
+
+        {/* Fields */}
+        {[
+          { label: 'Full name', value: 'Alex Morgan' },
+          { label: 'Email', value: 'alex@morgan.co' },
+          { label: 'Date of birth', value: 'Mar 14, 1997', chev: true },
+        ].map((f, i) => (
+          <div key={i} style={{
+            padding: '12px 16px', borderRadius: 14, background: BIKE_CARD,
+            border: '1px solid rgba(15,23,42,0.06)', marginBottom: 10,
+            display: 'flex', alignItems: 'center',
+          }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 12, color: BIKE_MUTED, fontWeight: 500, letterSpacing: -0.1 }}>{f.label}</div>
+              <div style={{ fontSize: 17, color: BIKE_INK, fontWeight: 500, marginTop: 2 }}>{f.value}</div>
+            </div>
+            {f.chev && (
+              <svg width="8" height="14" viewBox="0 0 8 14">
+                <path d="M1 1l6 6-6 6" stroke={BIKE_MUTED} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div style={{ padding: '16px 24px 12px' }}>
+        <PillButton onClick={onNext}>Continue →</PillButton>
+      </div>
+    </ScreenFrame>
+  );
+}
+
+// ── Screen 5: Plan + Payment ──────────────────────────────────
+function Screen_Payment({ onNext, onBack, plan, setPlan }) {
+  const plans = [
+    { id: 'pay', name: 'Pay as you ride', price: '$0', sub: '$0.25/min · no commitment', popular: false },
+    { id: 'month', name: 'Monthly Pass', price: '$19', sub: 'Unlimited 45-min rides', popular: true },
+  ];
+  return (
+    <ScreenFrame showStep step={4} onBack={onBack}>
+      <div style={{ padding: '0 24px', flex: 1, overflow: 'auto' }}>
+        <h2 style={{ fontSize: 30, fontWeight: 700, margin: '8px 0 10px', letterSpacing: -0.8, lineHeight: 1.1 }}>
+          Pick a plan
+        </h2>
+        <p style={{ fontSize: 16, color: BIKE_MUTED, margin: '0 0 24px', letterSpacing: -0.2, lineHeight: 1.4 }}>
+          Switch or cancel anytime.
+        </p>
+
+        {plans.map(p => {
+          const selected = plan === p.id;
+          return (
+            <div key={p.id} onClick={() => setPlan(p.id)} style={{
+              padding: 18, borderRadius: 18,
+              background: selected ? `${BIKE_BLUE}08` : BIKE_CARD,
+              border: `2px solid ${selected ? BIKE_BLUE : 'rgba(15,23,42,0.06)'}`,
+              marginBottom: 12, cursor: 'pointer',
+              position: 'relative',
+              transition: 'all 0.15s',
+            }}>
+              {p.popular && (
+                <div style={{
+                  position: 'absolute', top: -10, right: 16,
+                  background: BIKE_ORANGE, color: '#1a1208',
+                  padding: '4px 10px', borderRadius: 8,
+                  fontSize: 11, fontWeight: 700, letterSpacing: 0.3,
+                  textTransform: 'uppercase',
+                }}>Best value</div>
+              )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{
+                  width: 22, height: 22, borderRadius: 11,
+                  border: `2px solid ${selected ? BIKE_BLUE : 'rgba(15,23,42,0.2)'}`,
+                  background: selected ? BIKE_BLUE : 'transparent',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0,
+                }}>
+                  {selected && <div style={{ width: 8, height: 8, borderRadius: 4, background: '#fff' }} />}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 17, fontWeight: 600, color: BIKE_INK, letterSpacing: -0.2 }}>{p.name}</div>
+                  <div style={{ fontSize: 13, color: BIKE_MUTED, marginTop: 2 }}>{p.sub}</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: BIKE_INK, letterSpacing: -0.5 }}>{p.price}</div>
+                  <div style={{ fontSize: 11, color: BIKE_MUTED, marginTop: -2 }}>/month</div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+
+        <div style={{ marginTop: 20, fontSize: 13, color: BIKE_MUTED, fontWeight: 600, letterSpacing: 0.3, textTransform: 'uppercase' }}>
+          Payment
+        </div>
+        <div style={{
+          marginTop: 10, padding: 16, borderRadius: 14,
+          background: BIKE_CARD, border: '1px solid rgba(15,23,42,0.06)',
+          display: 'flex', alignItems: 'center', gap: 12,
+        }}>
+          <div style={{
+            width: 44, height: 30, borderRadius: 6,
+            background: '#000', color: '#fff',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 11, fontWeight: 700,
+          }}>Pay</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: BIKE_INK }}>Apple Pay</div>
+            <div style={{ fontSize: 12, color: BIKE_MUTED, marginTop: 1 }}>Recommended · Face ID</div>
+          </div>
+          <svg width="8" height="14" viewBox="0 0 8 14">
+            <path d="M1 1l6 6-6 6" stroke={BIKE_MUTED} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <div style={{ padding: '16px 24px 12px' }}>
+        <PillButton color={BIKE_ORANGE} textColor="#1a1208" onClick={onNext}>
+          Start riding →
+        </PillButton>
+      </div>
+    </ScreenFrame>
+  );
+}
+
+// ── Screen 6: Success ─────────────────────────────────────────
+function Screen_Success({ onNext }) {
+  return (
+    <div style={{
+      position: 'absolute', inset: 0, background: BIKE_BG,
+      display: 'flex', flexDirection: 'column', overflow: 'hidden',
+    }}>
+      {/* top burst */}
+      <div style={{
+        position: 'absolute', top: -100, left: '50%', transform: 'translateX(-50%)',
+        width: 400, height: 400, borderRadius: 200,
+        background: `radial-gradient(circle, ${BIKE_ORANGE}30 0%, transparent 70%)`,
+      }} />
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '0 32px', position: 'relative', zIndex: 1 }}>
+        <div style={{
+          width: 120, height: 120, borderRadius: 60,
+          background: BIKE_ORANGE,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: `0 20px 50px ${BIKE_ORANGE}55`,
+          marginBottom: 32,
+        }}>
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+            <path d="M14 28l10 10 20-22" stroke="#fff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+        <h1 style={{
+          fontSize: 38, fontWeight: 700, margin: '0 0 12px',
+          letterSpacing: -1.2, textAlign: 'center', color: BIKE_INK, lineHeight: 1.05,
+        }}>
+          You're in.
+        </h1>
+        <p style={{
+          fontSize: 17, color: BIKE_MUTED, textAlign: 'center',
+          margin: 0, lineHeight: 1.45, maxWidth: 280, letterSpacing: -0.2,
+        }}>
+          3 bikes unlocked near you.<br/>Scan a QR to start your first ride.
+        </p>
+
+        {/* Preview cards */}
+        <div style={{
+          marginTop: 36, padding: 16, borderRadius: 18,
+          background: BIKE_BLUE, color: '#fff',
+          display: 'flex', alignItems: 'center', gap: 14, width: '100%',
+          boxShadow: `0 16px 40px ${BIKE_BLUE}38`,
+        }}>
+          <div style={{
+            width: 48, height: 48, borderRadius: 10,
+            background: 'rgba(255,255,255,0.15)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+              <rect x="3" y="3" width="8" height="8" rx="1.5" stroke="#fff" strokeWidth="2"/>
+              <rect x="15" y="3" width="8" height="8" rx="1.5" stroke="#fff" strokeWidth="2"/>
+              <rect x="3" y="15" width="8" height="8" rx="1.5" stroke="#fff" strokeWidth="2"/>
+              <rect x="15" y="15" width="3" height="3" fill="#fff"/>
+              <rect x="20" y="15" width="3" height="3" fill="#fff"/>
+              <rect x="15" y="20" width="3" height="3" fill="#fff"/>
+              <rect x="20" y="20" width="3" height="3" fill="#fff"/>
+            </svg>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 12, opacity: 0.75, fontWeight: 500, letterSpacing: 0.2, textTransform: 'uppercase' }}>Nearest bike</div>
+            <div style={{ fontSize: 17, fontWeight: 600, marginTop: 2, letterSpacing: -0.2 }}>2 min walk · Valencia St</div>
+          </div>
+          <svg width="10" height="16" viewBox="0 0 10 16"><path d="M2 2l6 6-6 6" stroke="#fff" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </div>
+      </div>
+
+      <div style={{ padding: '0 24px 36px' }}>
+        <PillButton color={BIKE_BLUE} onClick={onNext}>Scan to unlock</PillButton>
+        <div style={{ textAlign: 'center', marginTop: 14, fontSize: 15, color: BIKE_MUTED }}>
+          Explore the map
+        </div>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, {
+  Screen_Welcome, Screen_Phone, Screen_Verify, Screen_Profile, Screen_Payment, Screen_Success,
+  BrandMark, PillButton,
+});
