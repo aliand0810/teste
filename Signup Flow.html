@@ -1,487 +1,912 @@
-// Bikesharing signup flow screens — "Velo" (original design)
 
-const BIKE_BLUE = 'var(--brand-blue)';
-const BIKE_ORANGE = 'var(--brand-orange)';
-const BIKE_INK = 'var(--ink)';
-const BIKE_MUTED = 'var(--muted)';
-const BIKE_BG = 'var(--bg)';
-const BIKE_CARD = 'var(--card)';
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CandyShop - Confiseries & Boissons du Monde</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #fafafa;
+            color: #333;
+        }
 
-// ── Reusable bits ─────────────────────────────────────────────
+        /* TOP BAR */
+        .top-bar {
+            background: #e84393;
+            color: white;
+            text-align: center;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        .top-bar span { font-weight: 700; }
 
-function BrandMark({ size = 44 }) {
-  return (
-    <div style={{
-      width: size, height: size, borderRadius: size * 0.28,
-      background: BIKE_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center',
-      boxShadow: `0 6px 16px ${BIKE_BLUE}40`,
-      position: 'relative',
-    }}>
-      {/* stylized V / bike chainring */}
-      <svg width={size * 0.56} height={size * 0.56} viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="9" stroke="#fff" strokeWidth="2" />
-        <circle cx="12" cy="12" r="2" fill={BIKE_ORANGE} />
-        <path d="M12 3v4M12 17v4M3 12h4M17 12h4" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-      </svg>
+        /* HEADER */
+        .header {
+            background: white;
+            padding: 16px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 900;
+            color: #e84393;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo .emoji { font-size: 32px; }
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            list-style: none;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+            transition: color 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-links a:hover { color: #e84393; }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: #f5f5f5;
+            border-radius: 25px;
+            padding: 8px 16px;
+            gap: 8px;
+        }
+        .search-bar input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            width: 180px;
+        }
+        .btn-icon {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            position: relative;
+        }
+        .cart-badge {
+            position: absolute;
+            top: -6px;
+            right: -8px;
+            background: #e84393;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+        .btn-login {
+            background: #e84393;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 25px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-login:hover { background: #d63384; }
+
+        /* HERO */
+        .hero {
+            position: relative;
+            background: linear-gradient(135deg, #e84393 0%, #fd79a8 50%, #fab1a0 100%);
+            padding: 80px 40px;
+            text-align: center;
+            color: white;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '🍬🍭🍫🥤🍿🧁🍩🍪';
+            position: absolute;
+            font-size: 60px;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            letter-spacing: 20px;
+            opacity: 0.2;
+            white-space: nowrap;
+        }
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 16px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .hero p {
+            font-size: 18px;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto 32px;
+            opacity: 0.95;
+        }
+        .btn-hero {
+            display: inline-block;
+            background: white;
+            color: #e84393;
+            padding: 14px 40px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .btn-hero:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        /* CATEGORIES */
+        .categories-bar {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            padding: 24px 40px;
+            flex-wrap: wrap;
+            background: white;
+            border-bottom: 1px solid #eee;
+        }
+        .cat-pill {
+            background: #f8f8f8;
+            border: 2px solid #eee;
+            padding: 10px 24px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #555;
+        }
+        .cat-pill:hover, .cat-pill.active {
+            background: #e84393;
+            color: white;
+            border-color: #e84393;
+        }
+
+        /* SECTION TITLES */
+        .section {
+            padding: 60px 40px;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+        .section-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #222;
+        }
+        .section-title .pink { color: #e84393; }
+        .see-all {
+            color: #e84393;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: gap 0.3s;
+        }
+        .see-all:hover { gap: 8px; }
+
+        /* PRODUCT GRID */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 24px;
+        }
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+            position: relative;
+        }
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        .product-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #e84393;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            z-index: 2;
+        }
+        .product-badge.promo {
+            background: #ff6b6b;
+        }
+        .product-badge.new {
+            background: #00b894;
+        }
+        .product-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #f9f9f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+        }
+        .product-info {
+            padding: 16px;
+        }
+        .product-brand {
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        .product-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin: 6px 0;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .product-pricing {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .product-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #e84393;
+        }
+        .product-old-price {
+            font-size: 13px;
+            color: #bbb;
+            text-decoration: line-through;
+        }
+        .btn-add-cart {
+            width: 100%;
+            background: #e84393;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 12px;
+            border-radius: 8px;
+        }
+        .btn-add-cart:hover { background: #d63384; }
+
+        /* VIDEO BANNER */
+        .video-banner {
+            background: linear-gradient(135deg, #2d3436, #636e72);
+            padding: 80px 40px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        .video-banner h2 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+        .video-banner p {
+            font-size: 16px;
+            opacity: 0.8;
+            margin-bottom: 28px;
+        }
+        .btn-discover {
+            display: inline-block;
+            background: #e84393;
+            color: white;
+            padding: 14px 36px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 15px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .btn-discover:hover { background: #d63384; transform: scale(1.05); }
+
+        /* FEATURES */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 32px;
+            padding: 60px 40px;
+            background: white;
+        }
+        .feature {
+            text-align: center;
+            padding: 24px;
+        }
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        .feature h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .feature p {
+            font-size: 13px;
+            color: #777;
+            line-height: 1.6;
+        }
+
+        /* NEWSLETTER */
+        .newsletter {
+            background: linear-gradient(135deg, #e84393, #fd79a8);
+            padding: 60px 40px;
+            text-align: center;
+            color: white;
+        }
+        .newsletter h2 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+        .newsletter p {
+            margin-bottom: 24px;
+            opacity: 0.9;
+        }
+        .newsletter-form {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .newsletter-form input {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 25px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            outline: none;
+        }
+        .newsletter-form button {
+            background: #222;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 25px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .newsletter-form button:hover { background: #444; }
+
+        /* FOOTER */
+        .footer {
+            background: #222;
+            color: #ccc;
+            padding: 60px 40px 30px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .footer-col h4 {
+            color: white;
+            font-size: 16px;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+        .footer-col a {
+            display: block;
+            color: #999;
+            text-decoration: none;
+            font-size: 13px;
+            margin-bottom: 8px;
+            transition: color 0.3s;
+        }
+        .footer-col a:hover { color: #e84393; }
+        .footer-col p {
+            font-size: 13px;
+            line-height: 1.8;
+            color: #999;
+        }
+        .footer-bottom {
+            border-top: 1px solid #333;
+            padding-top: 24px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+        .social-links {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .social-links a {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            text-decoration: none;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .social-links a:hover {
+            background: #e84393;
+            color: white;
+        }
+
+        /* MARQUEE */
+        .marquee-container {
+            overflow: hidden;
+            background: #ffeef7;
+            padding: 12px 0;
+        }
+        .marquee {
+            display: flex;
+            gap: 40px;
+            animation: scroll 20s linear infinite;
+            white-space: nowrap;
+        }
+        .marquee span {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e84393;
+        }
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .header { padding: 12px 16px; flex-wrap: wrap; gap: 12px; }
+            .nav-links { display: none; }
+            .hero h1 { font-size: 28px; }
+            .hero p { font-size: 15px; }
+            .section { padding: 40px 16px; }
+            .section-title { font-size: 22px; }
+            .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .search-bar input { width: 120px; }
+            .newsletter-form { flex-direction: column; }
+            .categories-bar { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        🚚 <span>Livraison rapide</span> partout en France | 🍬 +2000 produits importés USA, Japon, UK
     </div>
-  );
-}
 
-function PillButton({ children, color = BIKE_BLUE, textColor = '#fff', onClick, style = {} }) {
-  return (
-    <button onClick={onClick} style={{
-      width: '100%', height: 56, borderRadius: 16, border: 'none',
-      background: color, color: textColor,
-      fontFamily: 'inherit', fontSize: 17, fontWeight: 600,
-      letterSpacing: -0.2, cursor: 'pointer',
-      boxShadow: color === BIKE_BLUE ? `0 8px 20px ${BIKE_BLUE}38` :
-                 color === BIKE_ORANGE ? `0 8px 20px ${BIKE_ORANGE}45` : 'none',
-      ...style,
-    }}>{children}</button>
-  );
-}
-
-function ScreenFrame({ children, showStep, step, totalSteps = 5, onBack, dark = false, padTop = 62 }) {
-  return (
-    <div style={{
-      position: 'absolute', inset: 0,
-      display: 'flex', flexDirection: 'column',
-      paddingTop: padTop, paddingBottom: 34,
-      color: dark ? '#fff' : BIKE_INK,
-    }}>
-      {/* Top bar: back + progress */}
-      {showStep && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 20px 24px' }}>
-          <button onClick={onBack} style={{
-            width: 40, height: 40, borderRadius: 12, border: 'none',
-            background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.05)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', padding: 0,
-          }}>
-            <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
-              <path d="M8 2L2 8l6 6" stroke={dark ? '#fff' : BIKE_INK} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-          <div style={{ flex: 1, display: 'flex', gap: 5 }}>
-            {Array.from({ length: totalSteps }).map((_, i) => (
-              <div key={i} style={{
-                flex: 1, height: 4, borderRadius: 2,
-                background: i < step ? BIKE_BLUE : (dark ? 'rgba(255,255,255,0.15)' : 'rgba(15,23,42,0.08)'),
-                transition: 'background 0.3s',
-              }} />
-            ))}
-          </div>
+    <!-- HEADER -->
+    <header class="header">
+        <a href="#" class="logo">
+            <span class="emoji">🍭</span>
+            CandyShop
+        </a>
+        <ul class="nav-links">
+            <li><a href="#">Nouveautés</a></li>
+            <li><a href="#">Confiseries</a></li>
+            <li><a href="#">Boissons</a></li>
+            <li><a href="#">Snacks</a></li>
+            <li><a href="#">Chocolats</a></li>
+            <li><a href="#">Promos</a></li>
+        </ul>
+        <div class="header-actions">
+            <div class="search-bar">
+                <span>🔍</span>
+                <input type="text" placeholder="Rechercher un produit...">
+            </div>
+            <button class="btn-icon">👤</button>
+            <button class="btn-icon">
+                🛒
+                <span class="cart-badge">3</span>
+            </button>
+            <button class="btn-login">Se connecter</button>
         </div>
-      )}
-      {children}
+    </header>
+
+    <!-- MARQUEE -->
+    <div class="marquee-container">
+        <div class="marquee">
+            <span>🍬 Nouveaux arrivages chaque semaine</span>
+            <span>🇺🇸 Importation directe des USA</span>
+            <span>🇯🇵 Snacks japonais exclusifs</span>
+            <span>🍫 Chocolat Dubai tendance</span>
+            <span>🥤 Boissons exotiques</span>
+            <span>📦 Livraison express 24-48h</span>
+            <span>🍬 Nouveaux arrivages chaque semaine</span>
+            <span>🇺🇸 Importation directe des USA</span>
+            <span>🇯🇵 Snacks japonais exclusifs</span>
+            <span>🍫 Chocolat Dubai tendance</span>
+            <span>🥤 Boissons exotiques</span>
+            <span>📦 Livraison express 24-48h</span>
+        </div>
     </div>
-  );
-}
 
-// ── Screen 1: Welcome ─────────────────────────────────────────
-function Screen_Welcome({ onNext }) {
-  return (
-    <div style={{
-      position: 'absolute', inset: 0, background: BIKE_BLUE, color: '#fff',
-      display: 'flex', flexDirection: 'column', overflow: 'hidden',
-    }}>
-      {/* Decorative rings */}
-      <svg style={{ position: 'absolute', top: -120, right: -140, opacity: 0.18 }} width="420" height="420" viewBox="0 0 420 420" fill="none">
-        <circle cx="210" cy="210" r="200" stroke="#fff" strokeWidth="1.5"/>
-        <circle cx="210" cy="210" r="150" stroke="#fff" strokeWidth="1.5"/>
-        <circle cx="210" cy="210" r="100" stroke="#fff" strokeWidth="1.5"/>
-      </svg>
-      <svg style={{ position: 'absolute', bottom: -80, left: -100, opacity: 0.12 }} width="340" height="340" viewBox="0 0 340 340" fill="none">
-        <circle cx="170" cy="170" r="160" stroke={BIKE_ORANGE} strokeWidth="2"/>
-        <circle cx="170" cy="170" r="110" stroke={BIKE_ORANGE} strokeWidth="2"/>
-      </svg>
+    <!-- HERO -->
+    <section class="hero">
+        <h1>🍿🍭🍬🥤 Confiseries du Monde</h1>
+        <p>Découvrez notre sélection de bonbons, snacks et boissons importés des quatre coins du monde. Des saveurs uniques livrées chez vous !</p>
+        <a href="#" class="btn-hero">Je découvre →</a>
+    </section>
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0 28px 36px', position: 'relative' }}>
-        {/* Placeholder bike graphic */}
-        <div style={{
-          position: 'absolute', top: 110, left: '50%', transform: 'translateX(-50%)',
-          width: 240, height: 240, borderRadius: 40,
-          background: 'rgba(255,255,255,0.08)',
-          border: '1px dashed rgba(255,255,255,0.35)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexDirection: 'column', gap: 8,
-          fontFamily: 'ui-monospace, SFMono-Regular, monospace',
-          fontSize: 11, color: 'rgba(255,255,255,0.6)', letterSpacing: 0.5,
-        }}>
-          <svg width="84" height="84" viewBox="0 0 84 84" fill="none" style={{ opacity: 0.9 }}>
-            <circle cx="22" cy="58" r="16" stroke="#fff" strokeWidth="2.5"/>
-            <circle cx="62" cy="58" r="16" stroke="#fff" strokeWidth="2.5"/>
-            <path d="M22 58 L38 32 L58 32 L62 58 L38 32" stroke={BIKE_ORANGE} strokeWidth="2.5" strokeLinejoin="round" fill="none"/>
-            <circle cx="42" cy="44" r="4" fill={BIKE_ORANGE}/>
-            <path d="M56 22 L62 22 L58 32" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <div>HERO ILLUSTRATION</div>
-        </div>
-
-        <div style={{ marginTop: 'auto' }}>
-          <BrandMark size={52} />
-          <h1 style={{
-            fontSize: 44, lineHeight: 1.02, fontWeight: 700,
-            margin: '24px 0 12px', letterSpacing: -1.4,
-          }}>
-            Ride the<br/>
-            <span style={{ color: BIKE_ORANGE }}>city</span>, freely.
-          </h1>
-          <p style={{ fontSize: 17, lineHeight: 1.4, color: 'rgba(255,255,255,0.78)', margin: '0 0 32px', letterSpacing: -0.2 }}>
-            Unlock bikes in 2,400+ cities. Pay by the minute. Park anywhere.
-          </p>
-          <PillButton color={BIKE_ORANGE} textColor="#1a1208" onClick={onNext}>Create account</PillButton>
-          <div style={{ textAlign: 'center', marginTop: 18, fontSize: 15, color: 'rgba(255,255,255,0.7)' }}>
-            Already riding? <span style={{ color: '#fff', fontWeight: 600 }}>Sign in</span>
-          </div>
-        </div>
-      </div>
+    <!-- CATEGORIES -->
+    <div class="categories-bar">
+        <a href="#" class="cat-pill active">🔥 Tendances</a>
+        <a href="#" class="cat-pill">🍬 Bonbons</a>
+        <a href="#" class="cat-pill">🍫 Chocolats</a>
+        <a href="#" class="cat-pill">🥤 Boissons</a>
+        <a href="#" class="cat-pill">🍿 Snacks</a>
+        <a href="#" class="cat-pill">🇯🇵 Japon</a>
+        <a href="#" class="cat-pill">🇺🇸 USA</a>
+        <a href="#" class="cat-pill">🇬🇧 UK</a>
     </div>
-  );
-}
 
-// ── Screen 2: Phone number ────────────────────────────────────
-function Screen_Phone({ onNext, onBack, phone, setPhone }) {
-  return (
-    <ScreenFrame showStep step={1} onBack={onBack}>
-      <div style={{ padding: '0 24px', flex: 1 }}>
-        <h2 style={{ fontSize: 30, fontWeight: 700, margin: '8px 0 10px', letterSpacing: -0.8, lineHeight: 1.1 }}>
-          What's your number?
-        </h2>
-        <p style={{ fontSize: 16, color: BIKE_MUTED, margin: '0 0 32px', letterSpacing: -0.2, lineHeight: 1.4 }}>
-          We'll text you a code to verify. Standard rates may apply.
-        </p>
-
-        {/* Phone input */}
-        <div style={{
-          display: 'flex', gap: 10, marginBottom: 20,
-        }}>
-          <div style={{
-            height: 64, padding: '0 18px', borderRadius: 16,
-            background: BIKE_CARD, display: 'flex', alignItems: 'center', gap: 8,
-            border: `1px solid rgba(15,23,42,0.06)`,
-            fontSize: 17, fontWeight: 500,
-          }}>
-            🇺🇸 <span style={{ color: BIKE_INK }}>+1</span>
-            <svg width="10" height="6" viewBox="0 0 10 6" style={{ marginLeft: 2, opacity: 0.4 }}>
-              <path d="M1 1l4 4 4-4" stroke={BIKE_INK} strokeWidth="1.8" fill="none" strokeLinecap="round"/>
-            </svg>
-          </div>
-          <div style={{
-            flex: 1, height: 64, padding: '0 18px', borderRadius: 16,
-            background: BIKE_CARD,
-            border: `2px solid ${BIKE_BLUE}`,
-            display: 'flex', alignItems: 'center',
-            fontSize: 20, fontWeight: 500, letterSpacing: 0.5,
-            color: BIKE_INK,
-          }}>
-            {phone || <span style={{ color: BIKE_MUTED, fontWeight: 400 }}>(555) 123-4567</span>}
-            <div style={{
-              width: 2, height: 24, background: BIKE_BLUE, marginLeft: 2,
-              animation: 'blink 1s infinite',
-            }} />
-          </div>
+    <!-- NOUVEAUTÉS -->
+    <section class="section">
+        <div class="section-header">
+            <h2 class="section-title">🆕 Nos <span class="pink">Nouveautés</span></h2>
+            <a href="#" class="see-all">Voir tout →</a>
         </div>
-
-        <div style={{
-          display: 'flex', alignItems: 'flex-start', gap: 10,
-          padding: '14px 16px', borderRadius: 12,
-          background: `${BIKE_ORANGE}15`,
-          border: `1px solid ${BIKE_ORANGE}30`,
-        }}>
-          <div style={{ width: 20, height: 20, borderRadius: 10, background: BIKE_ORANGE, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 700, marginTop: 1 }}>i</div>
-          <p style={{ margin: 0, fontSize: 13, lineHeight: 1.45, color: BIKE_INK, letterSpacing: -0.1 }}>
-            By continuing, you agree to our <b>Terms</b> and <b>Privacy Policy</b>. We never share your number.
-          </p>
-        </div>
-      </div>
-
-      <div style={{ padding: '0 24px 12px' }}>
-        <PillButton onClick={onNext}>Send code →</PillButton>
-      </div>
-    </ScreenFrame>
-  );
-}
-
-// ── Screen 3: OTP verification ────────────────────────────────
-function Screen_Verify({ onNext, onBack }) {
-  const digits = ['4', '8', '2', '1', '', ''];
-  return (
-    <ScreenFrame showStep step={2} onBack={onBack}>
-      <div style={{ padding: '0 24px', flex: 1 }}>
-        <h2 style={{ fontSize: 30, fontWeight: 700, margin: '8px 0 10px', letterSpacing: -0.8, lineHeight: 1.1 }}>
-          Enter the code
-        </h2>
-        <p style={{ fontSize: 16, color: BIKE_MUTED, margin: '0 0 32px', letterSpacing: -0.2, lineHeight: 1.4 }}>
-          Sent to <b style={{ color: BIKE_INK }}>(555) 123-4567</b>. <span style={{ color: BIKE_BLUE, fontWeight: 600 }}>Edit</span>
-        </p>
-
-        <div style={{ display: 'flex', gap: 10, justifyContent: 'space-between', marginBottom: 28 }}>
-          {digits.map((d, i) => (
-            <div key={i} style={{
-              width: 50, height: 64, borderRadius: 14,
-              background: BIKE_CARD,
-              border: `2px solid ${i === 4 ? BIKE_BLUE : (d ? 'rgba(15,23,42,0.08)' : 'rgba(15,23,42,0.06)')}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 28, fontWeight: 600, color: BIKE_INK,
-              boxShadow: i === 4 ? `0 0 0 4px ${BIKE_BLUE}15` : 'none',
-            }}>
-              {d || (i === 4 && <div style={{ width: 2, height: 28, background: BIKE_BLUE, animation: 'blink 1s infinite' }} />)}
-            </div>
-          ))}
-        </div>
-
-        <div style={{ textAlign: 'center', fontSize: 15, color: BIKE_MUTED }}>
-          Didn't receive it? <span style={{ color: BIKE_BLUE, fontWeight: 600 }}>Resend in 24s</span>
-        </div>
-      </div>
-
-      <div style={{ padding: '0 24px 12px' }}>
-        <PillButton onClick={onNext}>Verify →</PillButton>
-      </div>
-    </ScreenFrame>
-  );
-}
-
-// ── Screen 4: Profile ─────────────────────────────────────────
-function Screen_Profile({ onNext, onBack }) {
-  return (
-    <ScreenFrame showStep step={3} onBack={onBack}>
-      <div style={{ padding: '0 24px', flex: 1, overflow: 'auto' }}>
-        <h2 style={{ fontSize: 30, fontWeight: 700, margin: '8px 0 10px', letterSpacing: -0.8, lineHeight: 1.1 }}>
-          A bit about you
-        </h2>
-        <p style={{ fontSize: 16, color: BIKE_MUTED, margin: '0 0 28px', letterSpacing: -0.2, lineHeight: 1.4 }}>
-          So we can personalize your ride experience.
-        </p>
-
-        {/* Avatar upload */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 28 }}>
-          <div style={{
-            width: 96, height: 96, borderRadius: 48,
-            background: `linear-gradient(135deg, ${BIKE_BLUE}, ${BIKE_ORANGE})`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#fff', fontSize: 36, fontWeight: 600,
-            position: 'relative',
-          }}>
-            AM
-            <div style={{
-              position: 'absolute', bottom: 0, right: 0,
-              width: 32, height: 32, borderRadius: 16,
-              background: BIKE_ORANGE, border: '3px solid #fff',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M10.5 2.5l1 1L5 10l-2.5.5L3 8l7.5-5.5z" stroke="#fff" strokeWidth="1.6" fill="none" strokeLinejoin="round"/>
-              </svg>
-            </div>
-          </div>
-          <div style={{ marginTop: 10, fontSize: 14, color: BIKE_BLUE, fontWeight: 600 }}>Add photo</div>
-        </div>
-
-        {/* Fields */}
-        {[
-          { label: 'Full name', value: 'Alex Morgan' },
-          { label: 'Email', value: 'alex@morgan.co' },
-          { label: 'Date of birth', value: 'Mar 14, 1997', chev: true },
-        ].map((f, i) => (
-          <div key={i} style={{
-            padding: '12px 16px', borderRadius: 14, background: BIKE_CARD,
-            border: '1px solid rgba(15,23,42,0.06)', marginBottom: 10,
-            display: 'flex', alignItems: 'center',
-          }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 12, color: BIKE_MUTED, fontWeight: 500, letterSpacing: -0.1 }}>{f.label}</div>
-              <div style={{ fontSize: 17, color: BIKE_INK, fontWeight: 500, marginTop: 2 }}>{f.value}</div>
-            </div>
-            {f.chev && (
-              <svg width="8" height="14" viewBox="0 0 8 14">
-                <path d="M1 1l6 6-6 6" stroke={BIKE_MUTED} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            )}
-          </div>
-        ))}
-      </div>
-
-      <div style={{ padding: '16px 24px 12px' }}>
-        <PillButton onClick={onNext}>Continue →</PillButton>
-      </div>
-    </ScreenFrame>
-  );
-}
-
-// ── Screen 5: Plan + Payment ──────────────────────────────────
-function Screen_Payment({ onNext, onBack, plan, setPlan }) {
-  const plans = [
-    { id: 'pay', name: 'Pay as you ride', price: '$0', sub: '$0.25/min · no commitment', popular: false },
-    { id: 'month', name: 'Monthly Pass', price: '$19', sub: 'Unlimited 45-min rides', popular: true },
-  ];
-  return (
-    <ScreenFrame showStep step={4} onBack={onBack}>
-      <div style={{ padding: '0 24px', flex: 1, overflow: 'auto' }}>
-        <h2 style={{ fontSize: 30, fontWeight: 700, margin: '8px 0 10px', letterSpacing: -0.8, lineHeight: 1.1 }}>
-          Pick a plan
-        </h2>
-        <p style={{ fontSize: 16, color: BIKE_MUTED, margin: '0 0 24px', letterSpacing: -0.2, lineHeight: 1.4 }}>
-          Switch or cancel anytime.
-        </p>
-
-        {plans.map(p => {
-          const selected = plan === p.id;
-          return (
-            <div key={p.id} onClick={() => setPlan(p.id)} style={{
-              padding: 18, borderRadius: 18,
-              background: selected ? `${BIKE_BLUE}08` : BIKE_CARD,
-              border: `2px solid ${selected ? BIKE_BLUE : 'rgba(15,23,42,0.06)'}`,
-              marginBottom: 12, cursor: 'pointer',
-              position: 'relative',
-              transition: 'all 0.15s',
-            }}>
-              {p.popular && (
-                <div style={{
-                  position: 'absolute', top: -10, right: 16,
-                  background: BIKE_ORANGE, color: '#1a1208',
-                  padding: '4px 10px', borderRadius: 8,
-                  fontSize: 11, fontWeight: 700, letterSpacing: 0.3,
-                  textTransform: 'uppercase',
-                }}>Best value</div>
-              )}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                <div style={{
-                  width: 22, height: 22, borderRadius: 11,
-                  border: `2px solid ${selected ? BIKE_BLUE : 'rgba(15,23,42,0.2)'}`,
-                  background: selected ? BIKE_BLUE : 'transparent',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0,
-                }}>
-                  {selected && <div style={{ width: 8, height: 8, borderRadius: 4, background: '#fff' }} />}
+        <div class="product-grid">
+            <div class="product-card">
+                <span class="product-badge new">Nouveau</span>
+                <div class="product-img">🥤</div>
+                <div class="product-info">
+                    <div class="product-brand">Red Bull</div>
+                    <div class="product-name">Red Bull The Organics Tonic Water 24 x 33cl</div>
+                    <div class="product-pricing">
+                        <span class="product-price">34,90€</span>
+                    </div>
+                    <button class="btn-add-cart">Ajouter au panier</button>
                 </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 17, fontWeight: 600, color: BIKE_INK, letterSpacing: -0.2 }}>{p.name}</div>
-                  <div style={{ fontSize: 13, color: BIKE_MUTED, marginTop: 2 }}>{p.sub}</div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: BIKE_INK, letterSpacing: -0.5 }}>{p.price}</div>
-                  <div style={{ fontSize: 11, color: BIKE_MUTED, marginTop: -2 }}>/month</div>
-                </div>
-              </div>
             </div>
-          );
-        })}
-
-        <div style={{ marginTop: 20, fontSize: 13, color: BIKE_MUTED, fontWeight: 600, letterSpacing: 0.3, textTransform: 'uppercase' }}>
-          Payment
+            <div class="product-card">
+                <span class="product-badge new">Nouveau</span>
+                <div class="product-img">🍫</div>
+                <div class="product-info">
+                    <div class="product-brand">Reese's</div>
+                    <div class="product-name">Reese's Nutrageous Bar 18 x 47g</div>
+                    <div class="product-pricing">
+                        <span class="product-price">28,50€</span>
+                    </div>
+                    <button class="btn-add-cart">Ajouter au panier</button>
+                </div>
+            </div>
+            <div class="product-card">
+                <span class="product-badge new">Nouveau</span>
+                <div class="product-img">🍬</div>
+                <div class="product-info">
+                    <div class="product-brand">Jelly Belly</div>
+                    <div class="product-name">Jelly Belly Bean Boozled Small Box 24 x 45g</div>
+                    <div class="product-pricing">
+                        <span class="product-price">42,90€</span>
+                    </div>
+                    <button class="btn-add-cart">Ajouter au panier</button>
+                </div>
+            </div>
+            <div class="product-card">
+                <span class="product-badge new">Nouveau</span>
+                <div class="product-img">🍫</div>
+                <div class="product-info">
+                    <div class="product-brand">M&M's</div>
+                    <div class="product-name">M&M's Brownie 18 x 35g</div>
+                    <div class="product-pricing">
+                        <span class="product-price">22,90€</span>
+                    </div>
+                    <button class="btn-add-cart">Ajouter au panier</button>
+                </div>
+            </div>
+            <div class="product-card">
+                <span class="product-badge new">Nouveau</span>
+                <div class="product-img">🥤</div>
+                <div class="product-info">
+                    <div class="product-brand">Fanta</div>
+                    <div class="product-name">Fanta Mango 24 x 330ml</div>
+                    <div class="product-pricing">
+                        <span class="product-price">29,90€</span>
+                    </div>
+                    <button class="btn-add-cart">Ajouter au panier</button>
+                </div>
+            </div>
+            <div class="product-card">
+                <span class="product-badge new">Nouveau</span>
+                <div class="product-img">🥒</div>
+                <div class="product-info">
+                    <div class="product-brand">Van Holten's</div>
+                    <div class="product-name">Van Holten's Pickle Puffed Snacks Hot Mama 10x90g</div>
+                    <div class="product-pricing">
+                        <span class="product-price">19,90€</span>
+                    </div>
+                    <button class="btn-add-cart">Ajouter au panier</button>
+                </div>
+            </div>
         </div>
-        <div style={{
-          marginTop: 10, padding: 16, borderRadius: 14,
-          background: BIKE_CARD, border: '1px solid rgba(15,23,42,0.06)',
-          display: 'flex', alignItems: 'center', gap: 12,
-        }}>
-          <div style={{
-            width: 44, height: 30, borderRadius: 6,
-            background: '#000', color: '#fff',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 11, fontWeight: 700,
-          }}>Pay</div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 15, fontWeight: 600, color: BIKE_INK }}>Apple Pay</div>
-            <div style={{ fontSize: 12, color: BIKE_MUTED, marginTop: 1 }}>Recommended · Face ID</div>
-          </div>
-          <svg width="8" height="14" viewBox="0 0 8 14">
-            <path d="M1 1l6 6-6 6" stroke={BIKE_MUTED} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+    </section>
+
+    <!-- VIDEO BANNER -->
+    <section class="video-banner">
+        <h2>🍫 Chocolat Dubai - La Tendance du Moment</h2>
+        <p>Découvrez nos tablettes de chocolat Dubai exclusives avec kayadif, pistache et bien plus !</p>
+        <a href="#" class="btn-discover">Je découvre →</a>
+    </section>
+
+    <!-- PROMOS -->
+    <section class="section" style="background: #fff5f9;">
+        <div class="section-header">
+            <h2 class="section-title">🔥 <span class="pink">Promos</span> du moment</h2>
+            <a href="#" class="see-all">Voir tout →</a>
         </div>
-      </div>
-
-      <div style={{ padding: '16px 24px 12px' }}>
-        <PillButton color={BIKE_ORANGE} textColor="#1a1208" onClick={onNext}>
-          Start riding →
-        </PillButton>
-      </div>
-    </ScreenFrame>
-  );
-}
-
-// ── Screen 6: Success ─────────────────────────────────────────
-function Screen_Success({ onNext }) {
-  return (
-    <div style={{
-      position: 'absolute', inset: 0, background: BIKE_BG,
-      display: 'flex', flexDirection: 'column', overflow: 'hidden',
-    }}>
-      {/* top burst */}
-      <div style={{
-        position: 'absolute', top: -100, left: '50%', transform: 'translateX(-50%)',
-        width: 400, height: 400, borderRadius: 200,
-        background: `radial-gradient(circle, ${BIKE_ORANGE}30 0%, transparent 70%)`,
-      }} />
-
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '0 32px', position: 'relative', zIndex: 1 }}>
-        <div style={{
-          width: 120, height: 120, borderRadius: 60,
-          background: BIKE_ORANGE,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: `0 20px 50px ${BIKE_ORANGE}55`,
-          marginBottom: 32,
-        }}>
-          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-            <path d="M14 28l10 10 20-22" stroke="#fff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+        <div class="product-grid">
+            <div class="product-card">
+                <span class="product-badge promo">-30%</span>
+                <div class="product-img">🍫</div>
+                <div class="product-info">
+                    <div class="product-brand">iConiksweet</div>
+                    <div class="product-name">Tablette Chocolat Dubai Kayadif Chocolat au lait & Bueno 12x200g</div>
+                    <div class="product-pricing">
+                        <span class="product-price">49,90€</span>
+                        <span class="product-old-price">71,28€</span>
+                    </div>
+                    <button class="btn-add-cart">Ajouter au panier</button>
+                </div>
+            </div>
+            <div class="product-card">
+                <span class="product-badge promo">-30%</span>
+                <div class="product-img">🍫</div>
+                <div class="product-info">
+                    <div class="product-brand">iConiksweet</div>
+                    <div class="product-name">Tablette Chocolat Dubai Kayadif Chocolat blanc & Pistache 12x100g</div>
+                    <div class="product-pricing">
+                        <span class="product-price">35,90€</span>
+                        <span class="product-old-price">51,28€</span>
+                    </div>
+                    <button class="btn-add-cart">Ajouter au panier</button>
+                </div>
+            </div>
+            <div class="product-card">
+                <span class="product-badge promo">-28%</span>
+                <div class="product-img">🍬</div>
+                <div class="product-info">
+                    <div class="product-brand">Oufti</div>
+                    <div class="product-name">Oufti Fraise 24x60g</div>
+                    <div class="product-pricing">
+                        <span class="product-price">18,90€</span>
+                        <span class="product-old-price">26,25€</span>
+                    </div>
+                    <button class="btn-add-cart">Ajouter au panier</button>
+                </div>
+            </div>
+            <div class="product-card">
+                <span class="product-badge promo">-28%</span>
+                <div class="product-img">🍌</div>
+                <div class="product-info">
+                    <div class="product-brand">Oufti</div>
+                    <div class="product-name">Oufti Banane Spéculoos 24x70g</div>
+                    <div class="product-pricing">
+                        <span class="product-price">19,90€</span>
+                        <span class="product-old-price">27,60€</span>
+                    </div>
+                    <button class="btn-add-cart">Ajouter au panier</button>
+                </div>
+            </div>
         </div>
-        <h1 style={{
-          fontSize: 38, fontWeight: 700, margin: '0 0 12px',
-          letterSpacing: -1.2, textAlign: 'center', color: BIKE_INK, lineHeight: 1.05,
-        }}>
-          You're in.
-        </h1>
-        <p style={{
-          fontSize: 17, color: BIKE_MUTED, textAlign: 'center',
-          margin: 0, lineHeight: 1.45, maxWidth: 280, letterSpacing: -0.2,
-        }}>
-          3 bikes unlocked near you.<br/>Scan a QR to start your first ride.
-        </p>
+    </section>
 
-        {/* Preview cards */}
-        <div style={{
-          marginTop: 36, padding: 16, borderRadius: 18,
-          background: BIKE_BLUE, color: '#fff',
-          display: 'flex', alignItems: 'center', gap: 14, width: '100%',
-          boxShadow: `0 16px 40px ${BIKE_BLUE}38`,
-        }}>
-          <div style={{
-            width: 48, height: 48, borderRadius: 10,
-            background: 'rgba(255,255,255,0.15)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-              <rect x="3" y="3" width="8" height="8" rx="1.5" stroke="#fff" strokeWidth="2"/>
-              <rect x="15" y="3" width="8" height="8" rx="1.5" stroke="#fff" strokeWidth="2"/>
-              <rect x="3" y="15" width="8" height="8" rx="1.5" stroke="#fff" strokeWidth="2"/>
-              <rect x="15" y="15" width="3" height="3" fill="#fff"/>
-              <rect x="20" y="15" width="3" height="3" fill="#fff"/>
-              <rect x="15" y="20" width="3" height="3" fill="#fff"/>
-              <rect x="20" y="20" width="3" height="3" fill="#fff"/>
-            </svg>
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 12, opacity: 0.75, fontWeight: 500, letterSpacing: 0.2, textTransform: 'uppercase' }}>Nearest bike</div>
-            <div style={{ fontSize: 17, fontWeight: 600, marginTop: 2, letterSpacing: -0.2 }}>2 min walk · Valencia St</div>
-          </div>
-          <svg width="10" height="16" viewBox="0 0 10 16"><path d="M2 2l6 6-6 6" stroke="#fff" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+    <!-- CATÉGORIES VEDETTES -->
+    <section class="section">
+        <div class="section-header">
+            <h2 class="section-title">🍿🍭🍬🥤 Nos <span class="pink">catégories vedettes</span></h2>
         </div>
-      </div>
-
-      <div style={{ padding: '0 24px 36px' }}>
-        <PillButton color={BIKE_BLUE} onClick={onNext}>Scan to unlock</PillButton>
-        <div style={{ textAlign: 'center', marginTop: 14, fontSize: 15, color: BIKE_MUTED }}>
-          Explore the map
+        <div class="product-grid">
+            <div class="product-card">
+                <div class="product-img">🥜</div>
+                <div class="product-info">
+                    <div class="product-brand">iConiksweet</div>
+                    <div class="product-name">Buenos Dias - Crème de pistache et bâtonnets croustillants 24x55g</div>
+                    <div class="product-pricing">
+                        <span class="product-price">39,90€</span>
+                    </div>
+                    <button class="btn-add-cart">Ajouter au panier</button>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-img">🍓</div>
+                <div class="product-info">
+                    <div class="product-brand">iConiksweet</div>
+                    <div class="product-name">Buenos Dias - Crème de fraise et bâtonnets croustillants 24x55g</div>
+                    <div class="product-pricing">
+                        <span class="product-price">39,90€</span>
+                    </div>
+                    <button class="btn-add-cart">Ajouter au panier</button>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-img">🍪</div>
+                <div class="product-info">
+                    <div class="product-brand">iConiksweet</div>
+                    <div class="product-name">Buenos Dias - Crème de Spéculoos et bâtonnets croustillants 24x55g</div>
+                    <div class="product-pricing">
+                        <span class="product-price">39,90€</span>
+                    </div>
+                    <button class="btn-add-cart">Ajouter au panier</button>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-img">🥥</div>
+                <div class="product-info">
+                    <div class="product-brand">iConiksweet</div>
+                    <div class="product-name">Buenos Dias - Crème de coconut et bâtonnets croustillants 24x55g</div>
+                    <div class="product-pricing">
+                        <span class="product-price">39,90€</span>
+                    </div>
+                    <button class="btn-add-cart">Ajouter au panier</button>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-img">🍫</div>
+                <div class="product-info">
+                    <div class="product-brand">Bounty</div>
+                    <div class="product-name">Bounty Protein Chocolate 12 x 52g</div>
+                    <div class="product-pricing">
+                        <span class="product-price">24,90€</span>
+                    </div>
+                    <button class="btn-add-cart">Ajouter au panier</button>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-img">🥤</div>
+                <div class="product-info">
+                    <div class="product-brand">Fanta</div>
+                    <div class="product-name">Fanta White Peach Japan 24x300ml - Pêche Blanche</div>
+                    <div class="product-pricing">
+                        <span class="product-price">45,90€</span>
+                    </div>
+                    <button class="btn-add-cart">Ajouter au panier</button>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
-}
+    </section>
 
-Object.assign(window, {
-  Screen_Welcome, Screen_Phone, Screen_Verify, Screen_Profile, Screen_Payment, Screen_Success,
-  BrandMark, PillButton,
-});
+    <!-- FEATURES -->
+    <section class="features">
+        <div class="feature">
+            <div class="feature-icon">🚚</div>
+            <h3>Livraison Rapide</h3>
+            <p>Nous assurons la livraison de produits en provenance des États-Unis, du Japon et de la Chine à travers toute la France !</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🔒</div>
+            <h3>Paiement Sécurisé</h3>
+            <p>Votre paiement est sécurisé grâce aux dernières normes de sécurité en vigueur. CB, PayPal, Apple Pay.</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🌍</div>
+            <h3>Produits du Monde</h3>
+            <p>Nous proposons une sélection unique de confiseries et boissons importées des quatre coins du monde.</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">⭐</div>
+            <h3>Qualité Garantie</h3>
+            <p>Tous nos produits sont sélectionnés avec soin pour vous garantir une qualité irréprochable.</p>
+        </div>
+    </section>
+
+    <!-- NEWSLETTER -->
+    <section class="newsletter">
+        <h2>📬 Restez informé !</h2>
+        <p>Inscrivez-vous à notre newsletter pour recevoir nos offres exclusives et nouveautés.</p>
+        <div class="newsletter-form">
+            <input type="email" placeholder="Votre adresse email...">
+            <button>S'inscrire</button>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>🍭 CandyShop</h4>
+                <p>Votre destination #1 pour les confiseries, snacks et boissons importés du monde entier.</p>
+                <div class="social-links">
+                    <a href="#">📘</a>
+                    <a href="#">📸</a>
+                    <a href="#">🐦</a>
+                    <a href="#">🎵</a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Boutique</h4>
+                <a href="#">Nouveautés</a>
+                <a href="#">Meilleures ventes</a>
+                <a href="#">Promotions</a>
+                <a href="#">Toutes les catégories</a>
+                <a href="#">Marques</a>
+            </div>
+            <div class="footer-col">
+                <h4>Informations</h4>
+                <a href="#">À propos</a>
+                <a href="#">Livraison</a>
+                <a href="#">Retours & Remboursements</a>
+                <a href="#">FAQ</a>
+                <a href="#">Contact</a>
+            </div>
+            <div class="footer-col">
+                <h4>Légal</h4>
+                <a href="#">Conditions générales</a>
+                <a href="#">Politique de confidentialité</a>
+                <a href="#">Mentions légales</a>
+                <a href="#">Cookies</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2025 CandyShop. Tous droits réservés. | Fait avec 🍬 en France
+        </div>
+    </footer>
+
+</body>
+</html>
